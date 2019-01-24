@@ -1,0 +1,38 @@
+\chapter{Introduction}
+
+The intent of \verb`clang-immutability-check` is to be the first pass for
+ensuring logically immutability for all classes in a C++ project.
+We only focus on classes, ensuring logically immutability across all sequences
+of method calls.
+The scope of the first pass is limited; for example it does not attempt to
+understand pointers.
+It will only check simple methods as valid, mainly any which just return a field
+or a field with some arithmetic applied to it.
+For these simple method checks it also ensures that the return type is
+transitively \const{}.
+For instance, if a class contains a vector of pointers to a class \verb`C` and
+returns that field, we would ensure the return type is
+\verb`const vector<const C*>&` instead of \verb`const vector<C *>&`.
+
+The secondary purpose of this work is to have a database of information which
+helps with the LLVM analysis and stores the results of this analysis.
+In addition we have website which acts both as a documentation hub and a way to
+present the results.
+This website lists all the classes we analyze and shows the results for each
+method we encounter.
+Using the database we can tabulate our results to answer the following research
+questions:
+
+\begin{enumerate}
+  \item How many classes contain \const{} methods.
+  \item How many \const{} vs non-\const{} methods are there.
+  \item How many \const{} methods are ``obviously'' \const{}
+\end{enumerate}
+
+From there we'll have a better sense of exactly where the complexity of more
+difficult \const{} problems are.
+
+These complex methods are then analyzed by our heavyweight LLVM static analysis.
+The information from the first stage such as type qualifiers and other
+information usually not accessible in LLVM is available through our database
+allowing a more precise analysis than just LLVM itself.

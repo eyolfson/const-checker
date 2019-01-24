@@ -1,0 +1,76 @@
+\chapter{Log}
+
+\section{Handling Locals (2017-09-13)}
+
+\textbf{Problem:} \verb`MemberExpr` does not mean what's being referenced is a
+field.
+For instance consider the following examples:
+
+\begin{verbatim}
+bool emptyField() const {
+  return f.empty();
+}
+\end{verbatim}
+
+\begin{verbatim}
+bool emptyLocal() const {
+  std::vector<int> l;
+  return l.empty();
+}
+\end{verbatim}
+
+Even if you can assume \verb`empty` may mutate, the local version should not
+flag that the object may mutate.
+Instead of \verb`MemberExpr` just returning that a value could be a field, I
+should check its \verb`getBase` and possibly \verb`getMemberDecl` (although the
+latter may only be good for checking the \const{} qualifier on method calls).
+If \verb`getBase` is a \verb`CXXThisExpr` then it's part of the object, if it's
+a \verb`VarDecl` then it's a local.
+Note that \verb`VarDecl` has a \verb`hasLocalStorage` function that I should be
+using.
+
+Actually, I shouldn't have to specifically handle locals.
+I just need to handle my detection a lot better.
+I re-organized the code to better handle every case.
+
+\section{Handling Locals without MemberExpr (2017-09-14)}
+
+I need to better distinguish between changes to an actual field and something
+that just previously had a field value.
+An instance of each is:
+
+\begin{verbatim}
+void modField() const {
+  f = 4;
+}
+\end{verbatim}
+
+\begin{verbatim}
+void modLocal() const {
+  int x = f;
+  x = 4;
+}
+\end{verbatim}
+
+Note also that:
+
+\begin{verbatim}
+void foo() const {
+  *f, *g = 4;
+}
+\end{verbatim}
+
+The expression \verb`*f` is unused.
+There will be no writes through a dereferenced \verb`f`.
+
+\section{Visitors}
+
+\textbf{\ttfamily Exprs.cpp} - LHSVisitor
+
+\textbf{\ttfamily Methods.cpp} - ResultVisitor
+
+\textbf{\ttfamily ValuesMaybleField.cpp} -  MaybeFieldsVisitor
+
+\textbf{\ttfamily ValuesMustLiteral.cpp} - MustLiteralsVisitor
+
+\textbf{\ttfamily VariableKinds.cpp} - TransferFunction
