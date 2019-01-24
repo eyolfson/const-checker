@@ -255,8 +255,12 @@ Database::Database(unsigned CompileCommandID) {
   P.addBinary(PackageNameID);
   TupleResult PackageNameSelect(Impl, "SELECT * FROM cpp_doc_package_name WHERE id = $1", P);
 
+  const char *BaseDir = ::getenv("CONST_CHECKER_BASE_DIR");
+  assert(BaseDir != nullptr);
+
   std::stringstream ss;
-  ss << "/home/jon/src/uwaterloo/immutability-experiments/";
+  ss << BaseDir;
+  ss << '/';
   ss << PackageNameSelect.getValue("slug");
   ss << '/';
   ss << PackageSelect.getValue("version");
