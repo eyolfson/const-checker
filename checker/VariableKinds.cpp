@@ -104,8 +104,8 @@ void VariableKinds::dump(SourceManager &SM) const {
   for (const auto &stmtValues : stmtsToValues) {
     const Stmt *stmt = stmtValues.first;
     const Values &values = stmtValues.second;
-    auto locStartData = SM.getCharacterData(stmt->getLocStart());
-    auto locEndData = SM.getCharacterData(stmt->getLocEnd());
+    auto locStartData = SM.getCharacterData(stmt->getBeginLoc());
+    auto locEndData = SM.getCharacterData(stmt->getEndLoc());
     llvm::StringRef loc(locStartData, locEndData - locStartData + 1);
     llvm::errs() << "  stmt: " << loc << '\n';
     llvm::errs() << "    " << stmt->getStmtClassName() << '\n';

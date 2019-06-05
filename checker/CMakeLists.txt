@@ -16,6 +16,7 @@ target_link_libraries(const-checker
   clangASTMatchers
   clangBasic
   clangFrontend
+  clangSerialization
   clangTooling
   clangConstCheckerDatabase
   LLVM

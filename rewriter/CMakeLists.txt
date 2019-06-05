@@ -7,6 +7,7 @@ target_link_libraries(const-rewriter
   clangASTMatchers
   clangBasic
   clangFrontend
+  clangSerialization
   clangTooling
   clangConstCheckerDatabase
   LLVM
